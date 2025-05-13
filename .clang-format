@@ -1,0 +1,24 @@
+BasedOnStyle: LLVM         # 基础风格
+IndentWidth: 4            # 缩进宽度
+TabWidth: 1                # Tab 显示宽度
+UseTab: Never              # 是否使用 Tab（Always/Never/ForIndentation）
+ColumnLimit: 100           # 每行最大字符数
+BreakBeforeBraces: Allman  # 大括号换行风格（Attach/Allman/Stroustrup/Google/Linux/Mozilla/WebKit）
+AllowShortIfStatementsOnASingleLine: false  # 单行 if 是否允许
+AllowShortLoopsOnASingleLine: false         # 单行 for/while 是否允许
+SpaceBeforeParens: ControlStatements        # 控制语句前是否加空格（Never/ControlStatements/Always）
+SpacesInParentheses: true                  # 括号内是否加空格
+SpacesInSquareBrackets: false               # 方括号内是否加空格
+SpacesInAngles: true                       # 模板参数尖括号内是否加空格
+SpaceAfterCStyleCast: true                  # C 风格强转后是否加空格
+PointerAlignment: Left                      # 指针 * 的对齐方式（Left/Right/Middle）
+AlignConsecutiveAssignments: false           # 对齐连续的赋值语句
+AlignConsecutiveDeclarations: false          # 对齐连续的声明
+AlignTrailingComments: true                 # 对齐行尾注释
+SortIncludes: true                          # 排序 include
+IncludeBlocks: Preserve                     # include 分组方式（Preserve/Merge/Regroup）
+NamespaceIndentation: All                   # 命名空间内缩进（None/Inner/All）
+ReflowComments: true                        # 自动换行注释
+AlwaysBreakTemplateDeclarations: Yes       # 模板声明是否总是换行
+
+AlignAfterOpenBracket: AlwaysBreak    # 开括号后对齐方式（DontAlign/Align/AlwaysBreak）
