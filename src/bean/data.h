@@ -45,8 +45,7 @@ class Data
 
     void print()
     {
-        std::cout << "Data points (curr_num = " << curr_num << ", dim = " << dim
-                  << "):" << std::endl;
+        std::cout << "Data points (curr_num = " << curr_num << ", dim = " << dim << "):" << std::endl;
         int np = static_cast< size_t >( curr_num ) > 10 ? 10 : static_cast< size_t >( curr_num );
         for ( size_t i = 0; i < np; ++i )
         {

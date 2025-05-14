@@ -2,7 +2,7 @@ BasedOnStyle: LLVM         # 基础风格
 IndentWidth: 4            # 缩进宽度
 TabWidth: 1                # Tab 显示宽度
 UseTab: Never              # 是否使用 Tab（Always/Never/ForIndentation）
-ColumnLimit: 100           # 每行最大字符数
+ColumnLimit: 200           # 每行最大字符数
 BreakBeforeBraces: Allman  # 大括号换行风格（Attach/Allman/Stroustrup/Google/Linux/Mozilla/WebKit）
 AllowShortIfStatementsOnASingleLine: false  # 单行 if 是否允许
 AllowShortLoopsOnASingleLine: false         # 单行 for/while 是否允许
