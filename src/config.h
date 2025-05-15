@@ -1,19 +1,19 @@
 #pragma once
 
+#include <libpmemobj++/container/vector.hpp>
+#include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/p.hpp> // p<>
+#include <libpmemobj++/p.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/pool.hpp>
-#include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/transaction.hpp>
-
-#include <libpmemobj++/container/vector.hpp>
 
 typedef float value_t;
 typedef double dist_t;
 
 namespace pobj = pmem::obj;
 
-inline void suppress_unused_pobj_warning() { (void)sizeof(pobj::persistent_ptr<int>); }
+inline void suppress_unused_pobj_warning() { (void) sizeof( pobj::persistent_ptr< int > ); }
 
 // #define ACC_BATCH_SIZE 4096
 #define ACC_BATCH_SIZE 1000000
