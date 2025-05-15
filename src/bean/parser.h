@@ -78,3 +78,63 @@ public:
         fclose(fp);
     }
 };
+
+class BigANNParse : public Parser<std::vector<std::pair<size_t, value_t>>>
+{
+private:
+    int dim;
+    const char* path;  // 添加一个成员变量来存储路径
+
+    // Override the tokenize method to do nothing since we don't need tokenization for binary data
+    std::vector<int> tokenize(char* buff) override {
+        return {};
+    }
+
+    // Override the parse method to read binary data
+    std::vector<std::pair<size_t, value_t>> parse(const std::vector<int>& tokens, char* buff) override {
+        std::vector<std::pair<size_t, value_t>> ret;
+        ret.reserve(dim);
+        uint8_t* data = reinterpret_cast<uint8_t*>(buff);
+        for (int j = 0; j < dim; ++j) {
+            ret.push_back(std::make_pair(static_cast<size_t>(j), static_cast<value_t>(data[j])));
+        }
+        return ret;
+    }
+
+public:
+    BigANNParse(const char* path, 
+                std::function<void(size_t, std::vector<std::pair<size_t, value_t>>)> consume, 
+                int dim = 128)
+        : Parser<std::vector<std::pair<size_t, value_t>>>(),  // 调用父类的默认构造函数
+          dim(dim), path(path) {
+        // 手动设置父类的成员变量
+        this->consume = consume;
+
+        // 打开文件
+        FILE* fp = fopen(path, "rb");
+        if (fp == NULL) {
+            Logger::log(Logger::ERROR, "File not found at (%s)\n", path);
+            exit(1);
+        }
+
+        // 读取文件头以获取元数据，例如向量数量
+        int num_vectors;
+        fread(&num_vectors, sizeof(int), 1, fp);
+
+        // 计算总数据大小
+        int total_data = num_vectors * dim;
+        std::unique_ptr<uint8_t[]> data(new uint8_t[total_data]);
+        fread(data.get(), sizeof(uint8_t), total_data, fp);
+
+        // 解析数据并调用回调函数
+        for (size_t i = 0; i < num_vectors; ++i) {
+            auto values = parse({}, reinterpret_cast<char*>(data.get() + i * dim));
+            consume(i, values); // 为每个向量分配不同的索引
+        }
+
+        fclose(fp);
+    }
+};
+
+
+// 如果需要调用的话要加入模板参数，BigANNParse bigann_parser(bigann_path, consume); 最后一个默认参数dim=128
