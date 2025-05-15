@@ -33,3 +33,17 @@ enum class DistType
     NEGATIVE_COSINE,
     BIT_HAMMING
 };
+
+class Data;
+template < DistType T >
+class FixedDegreeGraph;
+
+struct Root
+{
+    pobj::persistent_ptr< FixedDegreeGraph< DistType::L2 > > graph;
+    pobj::persistent_ptr< Data > data;
+};
+
+extern pobj::pool< Root > pop;
+
+extern pobj::persistent_ptr< Root > root;
