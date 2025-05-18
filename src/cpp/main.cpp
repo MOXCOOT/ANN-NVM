@@ -17,10 +17,7 @@ pobj::pool< Root > pop;
 pobj::persistent_ptr< Data > dataobj;
 pobj::persistent_ptr< FixedDegreeGraph< DistType::L2 > > graphobj;
 
-void build_callback( size_t idx, std::vector< std::pair< size_t, value_t > > point )
-{
-    dataobj->add( pop, idx, point );
-}
+void build_callback( size_t idx, std::vector< std::pair< size_t, value_t > > point ) { dataobj->add( pop, idx, point ); }
 
 int main( int argc, char* argv[] )
 {
@@ -51,8 +48,7 @@ int main( int argc, char* argv[] )
     dataobj = pop.root()->data;
     graphobj = pop.root()->graphobj;
     if ( !exist_pool )
-        std::unique_ptr< LibSVMParser > build_parser(
-            new LibSVMParser( path_data, build_callback ) );
+        std::unique_ptr< LibSVMParser > build_parser( new LibSVMParser( path_data, build_callback ) );
     else
         dataobj->print();
     pop.close(); // 关闭持久化内存池

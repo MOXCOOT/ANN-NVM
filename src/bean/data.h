@@ -10,6 +10,7 @@ class Data
     pobj::persistent_ptr< value_t[] > data;
     pobj::p< size_t > num;
     pobj::p< size_t > curr_num = 0;
+    pobj::p< size_t > have_num = 0;
     pobj::p< int > dim;
 
   public:
@@ -17,6 +18,8 @@ class Data
     {
         pobj::transaction::run( pop, [&] { data = pobj::make_persistent< value_t[] >( n * d ); } );
     }
+
+    int get_dim() const { return dim; }
 
     // 修改第idx个点的数据（假设每个点有dim维，输入为指向T的指针）
     void set_point( pobj::pool_base& pop, size_t idx, const value_t* value )
@@ -45,8 +48,7 @@ class Data
 
     void print()
     {
-        std::cout << "Data points (curr_num = " << curr_num << ", dim = " << dim
-                  << "):" << std::endl;
+        std::cout << "Data points (curr_num = " << curr_num << ", dim = " << dim << "):" << std::endl;
         int np = static_cast< size_t >( curr_num ) > 10 ? 10 : static_cast< size_t >( curr_num );
         for ( size_t i = 0; i < np; ++i )
         {
@@ -71,4 +73,43 @@ class Data
 
     // 返回当前点数
     size_t curr_vertices() const { return curr_num; }
+
+    void set_curr_vertices( size_t num )
+    {
+        pobj::transaction::run( pop, [&] { curr_num = num; } );
+    }
+
+    std::vector< std::pair< size_t, value_t > > get_point( size_t idx ) const
+    {
+        if ( idx >= num )
+        {
+            throw std::out_of_range( "Index out of range" );
+        }
+
+        std::vector< std::pair< size_t, value_t > > ret;
+        ret.reserve( dim );
+        value_t* p = get( idx );
+        for ( int i = 0; i < dim; ++i )
+        {
+            ret.emplace_back( i, p[i] );
+        }
+        return ret;
+    }
+
+    std::vector< value_t > organize_point( const std::vector< std::pair< size_t, value_t > >& v )
+    {
+        std::vector< value_t > ret( dim, 0 );
+        for ( const auto& p : v )
+        {
+            if ( p.first >= dim )
+                printf( "error %ld %d\n", p.first, static_cast< int >( dim ) );
+            ret[p.first] = p.second;
+        }
+        return std::move( ret );
+    }
+
+    void initcurr_num()
+    {
+        pobj::transaction::run( pop, [&] { curr_num = 0; } );
+    }
 };
