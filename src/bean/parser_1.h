@@ -2,6 +2,7 @@
 
 #include "../config.h"
 // #include "logger.h"
+#include "../../util/time/time.h"
 #include <functional>
 #include <memory>
 #include <stdlib.h>
@@ -68,13 +69,13 @@ class Parser
     }
 };
 
-class LibSVMParse : public Parser
+class LibSVMParser : public Parser
 {
   public:
     using Parser::Parser;
 };
 
-class BigANNParse
+class BigANNParser
 {
   private:
     std::function< void( size_t, std::vector< std::pair< size_t, value_t > > ) > consume;
@@ -91,19 +92,20 @@ class BigANNParse
     }
 
   public:
-    BigANNParse( const char* path, std::function< void( size_t, std::vector< std::pair< size_t, value_t > > ) > consume, int dim = 128 ) : consume( consume )
+    BigANNParser( const char* path, std::function< void( size_t, std::vector< std::pair< size_t, value_t > > ) > consume, int dim = 128, size_t num_vectors = 1000000000 ) : consume( consume )
     {
         FILE* fp = fopen( path, "rb" );
+        Timer timer;
         if ( fp == NULL )
         {
             // Logger::log( Logger::ERROR, "File not found at (%s)\n", path );
             exit( 1 );
         }
 
-        // 读取文件头获取向量数量等元数据
-        int num_vectors;
-        fread( &num_vectors, sizeof( int ), 1, fp );
+        // // 读取文件头获取向量数量等元数据
+        // int num_vectors = 10000;
 
+        std::cout << "num_vectors read from file: " << num_vectors << std::endl;
         // 计算总数据量
         int total_data = num_vectors * dim;
         std::unique_ptr< uint8_t[] > data( new uint8_t[total_data] );
@@ -112,9 +114,14 @@ class BigANNParse
         for ( size_t i = 0; i < num_vectors; ++i )
         {
             auto values = parse( data.get(), dim, static_cast< int >( i ) );
-            consume( i, values ); // 为每个向量分配不同的 idx
+            if ( i % 10000000 == 0 )
+            {
+                std::cout << "Processing vector " << i << "..." << std::endl;
+                std::cout << "time consumed: " << timer.elapsed() << std::endl;
+            }
+            // consume( i, values ); // 为每个向量分配不同的 idx
         }
-
+        std::cout << "time consumed in reading file: " << timer.elapsed() << std::endl;
         fclose( fp );
     }
 };
