@@ -137,4 +137,61 @@ public:
 };
 
 
-// 如果需要调用的话要加入模板参数，BigANNParse bigann_parser(bigann_path, consume); 最后一个默认参数dim=128
+
+class mydataParse :  public Parser<std::vector<std::pair<size_t, value_t>>> {
+private:
+    int dim;
+    const char* path;
+
+    // Override the tokenize method to do nothing since we don't need tokenization for binary data
+    std::vector<int> tokenize(char* buff) override {
+        return {};
+    }
+
+    // Override the parse method to read binary data
+    std::vector<std::pair<size_t, value_t>> parse(const std::vector<int>& tokens, char* buff) override {
+        std::vector<std::pair<size_t, value_t>> ret;
+        ret.reserve(dim+1);
+        uint8_t* data = reinterpret_cast<uint8_t*>(buff);
+        for (int j = 0; j < dim+1; ++j) {
+            ret.push_back(std::make_pair(j, static_cast<value_t>(data[j])));
+        }
+        return ret;
+    }
+
+public:
+    mydataParse(const char* path, std::function<void(idx_t, std::vector<std::pair<size_t, value_t>>)> consume, int dim = 128)
+        : Parser<std::vector<std::pair<size_t, value_t>>>(),  // 调用父类的默认构造函数
+          dim(dim), path(path) {
+        FILE* fp = fopen(path, "rb");
+        if (fp == NULL) {
+            Logger::log(Logger::ERROR, "File not found at (%s)\n", path);
+            exit(1);
+        }
+
+        // Read file header to get metadata like number of vectors and dimensions
+        uint8_t bytesPerLine;
+        fread(&bytesPerLine, sizeof(uint8_t), 1, fp);
+
+        if (bytesPerLine != dim + 1) { // 检查每行的字节数是否正确
+            Logger::log(Logger::ERROR, "Bytes per line mismatch. Expected %d, found %d\n", dim + 1, bytesPerLine);
+            fclose(fp);
+            exit(1);
+        }
+
+        // Buffer to hold one vector at a time (including the flag)
+        std::unique_ptr<uint8_t[]> data(new uint8_t[dim + 1]);
+
+        // Read each vector
+        int idx = 0;
+        while (fread(data.get(), sizeof(uint8_t), dim + 1, fp) == dim + 1) {
+            auto values = parse({}, reinterpret_cast<char*>(data.get()));
+            consume(idx++, values);
+        }
+
+        fclose(fp);
+    }
+};
+
+
+
